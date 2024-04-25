@@ -1,6 +1,8 @@
 import pygame
 import random, sys, math, time
 import pygame_menu
+from pygame_menu.widgets import Widget
+from pygame_menu.utils import make_surface
 from pygame_menu import themes
 
 pygame.init()
@@ -27,6 +29,28 @@ colors = {
     "GOLD": (255, 215, 0)
 }
 
+# clickable button image
+class ImageButton(Widget):
+    def __init__(self, image_path, action, width=100, height=100, *args, **kwargs):
+        super(ImageButton, self).__init__(*args, **kwargs)
+        self._image_path = image_path
+        self._action = action
+        self._width = width
+        self._height = height
+        self._surface = make_surface(width, height, alpha=True)
+        self._image = image_path
+        self.set_onselect(self._action)
+    
+    def draw(self, surface):
+        surface.blit(self._image, self.get_rect(topleft=True))
+
+    def update(self, events):
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONUP:
+                if self._rect.collidepoint(event.pos):
+                    self.apply()
+                    break
+
 # main menu
 class MainMenu:
     def __init__(self, screen, width, height):
@@ -41,15 +65,18 @@ class MainMenu:
         self.main_menu.add.button('Settings', self.settings)
         self.main_menu.add.button('Quit', pygame_menu.events.EXIT)
 
+    def on_resize(self):
+        window_size = screen.get_size()
+        new_w, new_h = 0.75 * window_size[0], 0.7 * window_size[1]
+        self.main_menu.resize(new_w, new_h)
+
     def quitMenu(self):
         self.main_menu.disable()
 
     def game(self):
         self.player_screen = pygame_menu.Menu('Player Screen', self.width, self.height, theme=pygame_menu.themes.THEME_DEFAULT)
-        self.player_screen.add.text_input(title="Name: ")
-        carImages = pygame.image.load('path_to_your_play_button_image.png').convert_alpha()
-        self.player_screen.add.image(carImages, scale=(0.5, 0.5), onselect=self.game)
-        
+        self.player_screen.add.text_input(title="Country Name: ")
+
         self.player_screen.add.button('Play', self.quitMenu)
         self.main_menu._open(self.player_screen)
 
