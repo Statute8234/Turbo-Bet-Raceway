@@ -28,7 +28,7 @@ Dynamic element adjustment ensures usability and maintains visual appeal across 
 The game may also incorporate actual car images and profiles, enhancing immersion and making the game more engaging. It is essential to continue refining and polishing the game to make it even more enjoyable.
 
 # Installation
-1) HTTPS - https://github.com/Statute8234/ThematicBot.git
+1) HTTPS - Statute8234/ThematicBot.git
 2) CLONE - Statute8234/ThematicBot.git
 
 # Usage
