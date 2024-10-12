@@ -1,13 +1,11 @@
 # Turbo-Bet-Raceway
-
-[![Static Badge](https://img.shields.io/badge/pygame-lime)](https://docs.python.org/3/library/tkinter.html)
-[![Static Badge](https://img.shields.io/badge/random-blue)](https://pypi.org/project/PyGetWindow/)
-[![Static Badge](https://img.shields.io/badge/sys-cyan)](https://pypi.org/project/times/)
-[![Static Badge](https://img.shields.io/badge/math-magenta)](https://pypi.org/project/textblob/)
-[![Static Badge](https://img.shields.io/badge/time-silver)](https://pypi.org/project/textblob/)
-[![Static Badge](https://img.shields.io/badge/pygame_menu-gray)](https://pypi.org/project/textblob/)
-
 Is a Turbo Raceway game developed using the Pygame library. It features a menu-driven interface, adjustable settings, and customizable gameplay elements like car colors. The game initializes with a resizable display window, defines primary colors, and provides a comprehensive menu system. Players can adjust settings, music volume, sound effects, frame rate, and screen brightness. The game also includes placeholders for car images and profiles.
+
+[![Static Badge](https://img.shields.io/badge/socket-yellow)](https://pypi.org/project/socket/)
+[![Static Badge](https://img.shields.io/badge/threading-red)](https://pypi.org/project/threading/)
+[![Static Badge](https://img.shields.io/badge/pygame-green)](https://pypi.org/project/pygame/)
+[![Static Badge](https://img.shields.io/badge/random,-gray)](https://pypi.org/project/random,/)
+[![Static Badge](https://img.shields.io/badge/pygame_menu-yellow)](https://pypi.org/project/pygame_menu/)
 
 # Table of Contents
 
