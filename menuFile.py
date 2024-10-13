@@ -60,7 +60,7 @@ class CreatePlayer:
         self.showflag = False
         # car
         self.userNumber = random.randint(0, sys.maxsize)
-        self.api_key = "WA4JaGhb4IwV1SB7HB3WtA==F9pCGDsOMvwjnyyj"
+        self.api_key = "***"
         self.makes = []
         self.models = []
         self.selected_make = None
@@ -262,7 +262,7 @@ class CreatePlayer:
         self.frame = self.car_screen.add.frame_h(width=self.width, height=300, dynamic_width=True)
         self.car_screen.add.label('User Number: ' + str(self.userNumber))
         self.flag_screen._open(self.car_screen)
-        carProfile = self.car_screen.add.image(r"Images\carPortfolio_Image.png", scale=(0.5,0.5))
+        carProfile = self.car_screen.add.image(r"ImageFile/carPortfolio_Image.png", scale=(0.5,0.5))
         self.car_screen.add.color_input(title="Car Color: ", color_type="rgb", dynamic_width=False, default=random_color())
         self.car_screen.add.color_input(title="Interior Color: ", color_type="rgb", dynamic_width=False, default=random_color())
         self.frame.pack(carProfile)
