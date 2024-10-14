@@ -3,7 +3,7 @@ import random, sys, math, time
 import socket
 import pickle
 # ---
-import menuFile, Game_sprites
+import menuFile, game_sprites
 # screen
 pygame.init()
 current_time = time.time()
@@ -30,7 +30,7 @@ def on_resize() -> None:
     player_screen.flag_screen.resize(new_w, new_h)
     player_screen.car_screen.resize(new_w, new_h)
 
-testPlayer = Game_sprites.Players(300,300,100,150,r"ImageFile\testCar-fotor-bg-remover-20241013223457.png")
+testPlayer = game_sprites.Players(300,300,100,150,r"ImageFile\testCar-fotor-bg-remover-20241013223457.png")
 # main
 def main():
     global screen
