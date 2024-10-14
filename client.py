@@ -3,7 +3,7 @@ import random, sys, math, time
 import socket
 import pickle
 # ---
-import menuFile
+import menuFile, Game_sprites
 # screen
 pygame.init()
 current_time = time.time()
@@ -30,6 +30,7 @@ def on_resize() -> None:
     player_screen.flag_screen.resize(new_w, new_h)
     player_screen.car_screen.resize(new_w, new_h)
 
+testPlayer = Game_sprites.Players(300,300,100,150,r"ImageFile\testCar-fotor-bg-remover-20241013223457.png")
 # main
 def main():
     global screen
@@ -53,11 +54,19 @@ def main():
         if not (main_menu.singlePlayer or main_menu.multiplayer):
             main_menu.main_menu.update(events)
             main_menu.main_menu.draw(screen)
-        if main_menu.singlePlayer and not player_screen.showflag:
-            player_screen.flag_screen.update(events)
-            player_screen.flag_screen.draw(screen)
-        if player_screen.showflag:
-            player_screen.preview_flag()
+        if not player_screen.play:
+            if main_menu.singlePlayer and not player_screen.showflag:
+                try:
+                    player_screen.flag_screen.update(events)
+                    player_screen.flag_screen.draw(screen)
+                except:
+                    player_screen.car_screen.update(events)
+                    player_screen.car_screen.draw(screen)
+            if player_screen.showflag:
+                player_screen.preview_flag()
+        else:
+            testPlayer.draw(screen)
+            testPlayer.update()
         # This is to update the scene
         clock.tick(64)
         pygame.display.flip()

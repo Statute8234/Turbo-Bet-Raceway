@@ -3,8 +3,7 @@ import pygame_menu
 from pygame_menu import themes
 import random
 import random, sys, math, time
-import requests
-import json
+import pandas as pd
 current_time = time.time()
 random.seed(current_time)
 
@@ -66,6 +65,7 @@ class CreatePlayer:
         self.selected_make = None
         self.selected_model = None
         self.car_data = None
+        self.play = False
         self.create_main()
     
     def create_main(self):
@@ -116,7 +116,7 @@ class CreatePlayer:
         # Button to preview the flag
         self.flag_screen.add.button('Preview Flag', self.preview_flag)
         # Button to play after creating the flag
-        self.flag_screen.add.button('Next', self.Next_Screen)
+        self.flag_screen.add.button('Next', self.next_screen)
 
     def set_country_name(self, value):
         self.country_name = value
@@ -200,64 +200,12 @@ class CreatePlayer:
         # Refresh the display
         pygame.display.flip()
 
-    def load_car_makes(self):
-        url = f"https://api.api-ninjas.com/v1/cars?"
-        headers = {'X-Api-Key': self.api_key}
-        response = requests.get(url, headers=headers)
-        
-        if response.status_code == 200:
-            cars = json.loads(response.text)
-            self.makes = sorted(list(set(car['make'] for car in cars)))
-            self.update_make_selector()
-        else:
-            print(f"Error: {response.status_code}, {response.text}")
-    
-    def update_make_selector(self):
-        self.car_screen.add.selector(
-            title="Make: ",
-            items=[(make, make) for make in self.makes],
-            onchange=self.set_make
-        )
+    def make_modelsList(self):
+        data = pd.read_csv('dataFiles\car_db_metric.csv', header=0, usecols=['make','model'])
+        self.makes = data['make'].unique().tolist()
+        self.models = data['model'].unique().tolist()
 
-    def set_make(self, selected_value, make):
-        self.selected_make = make
-        self.load_car_models(make)
-    
-    def load_car_models(self, make):
-        url = f"https://api.api-ninjas.com/v1/cars?make={make}&limit=50"
-        headers = {'X-Api-Key': self.api_key}
-        response = requests.get(url, headers=headers)
-        
-        if response.status_code == 200:
-            cars = json.loads(response.text)
-            self.models = sorted(list(set(car['model'] for car in cars)))
-            self.update_model_selector()
-        else:
-            print(f"Error: {response.status_code}, {response.text}")
-    
-    def update_model_selector(self):
-        self.car_screen.add.selector(
-            title="Model: ",
-            items=[(model, model) for model in self.models],
-            onchange=self.set_model
-        )
-    
-    def set_model(self, selected_value, model):
-        self.selected_model = model
-        self.load_car_data()
-    
-    def load_car_data(self):
-        url = f"https://api.api-ninjas.com/v1/cars?make={self.selected_make}&model={self.selected_model}&limit=1"
-        headers = {'X-Api-Key': self.api_key}
-        response = requests.get(url, headers=headers)
-        
-        if response.status_code == 200:
-            self.car_data = json.loads(response.text)[0]
-            self.update_car_info()
-        else:
-            print(f"Error: {response.status_code}, {response.text}")
-
-    def Next_Screen(self):
+    def next_screen(self):
         self.car_screen.clear()
         self.frame = self.car_screen.add.frame_h(width=self.width, height=300, dynamic_width=True)
         self.car_screen.add.label('User Number: ' + str(self.userNumber))
@@ -266,8 +214,20 @@ class CreatePlayer:
         self.car_screen.add.color_input(title="Car Color: ", color_type="rgb", dynamic_width=False, default=random_color())
         self.car_screen.add.color_input(title="Interior Color: ", color_type="rgb", dynamic_width=False, default=random_color())
         self.frame.pack(carProfile)
-        self.load_car_makes()
-        self.load_car_models()
+        self.make_modelsList()
+        # ---
+        self.car_screen.add.selector(
+            title="Model: ",
+            items=self.models,
+            onchange=self.set_shape
+        )
+
+        self.car_screen.add.selector(
+            title="Make: ",
+            items=self.makes,
+            onchange=self.set_shape
+        )
+        # ----
         self.car_screen.add.text_input(title="Year: ")
         self.car_screen.add.label('Car information')
         # ---
@@ -278,6 +238,11 @@ class CreatePlayer:
         self.car_screen.add.label('Acceleration: ')
         self.car_screen.add.label('Maximum Speed: ')
         self.car_screen.add.label('Total Drag: ')
+        # --- play button
+        self.car_screen.add.button('Play', self.play_game)
 
     def set_model(self, selected_value, model):
         self.model = model
+    
+    def play_game(self):
+        self.play = True
