@@ -30,7 +30,7 @@ def on_resize() -> None:
     player_screen.flag_screen.resize(new_w, new_h)
     player_screen.car_screen.resize(new_w, new_h)
 
-testPlayer = game_sprites.Players(300,300,100,150,r"ImageFile\testCar-fotor-bg-remover-20241013223457.png")
+testPlayer = game_sprites.Players(300,300,125,100,r"Topdown_vehicle_sprites_pack_Unluckystudio\Topdown_vehicle_sprites_pack\Audi.png")
 # main
 def main():
     global screen
@@ -44,26 +44,15 @@ def main():
             elif event.type == pygame.VIDEORESIZE:
                 screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 on_resize()
-            elif event.type == pygame.KEYDOWN:
-                if not player_screen.showflag and event.key == pygame.K_ESCAPE:
-                    main_menu.singlePlayer, main_menu.multiplayer = False, False
-                if event.key == pygame.K_TAB:
-                    player_screen.showflag = False
         screen.fill((255, 255, 255))
         # menu
         if not (main_menu.singlePlayer or main_menu.multiplayer):
             main_menu.main_menu.update(events)
             main_menu.main_menu.draw(screen)
         if not player_screen.play:
-            if main_menu.singlePlayer and not player_screen.showflag:
-                try:
-                    player_screen.flag_screen.update(events)
-                    player_screen.flag_screen.draw(screen)
-                except:
-                    player_screen.car_screen.update(events)
-                    player_screen.car_screen.draw(screen)
-            if player_screen.showflag:
-                player_screen.preview_flag()
+            if main_menu.singlePlayer:
+                player_screen.menu.update(events)
+                player_screen.menu.draw(screen)
         else:
             testPlayer.draw(screen)
             testPlayer.update()

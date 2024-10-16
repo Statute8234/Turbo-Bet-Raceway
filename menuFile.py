@@ -4,12 +4,9 @@ from pygame_menu import themes
 import random
 import random, sys, math, time
 import pandas as pd
+import pygame_menu.locals
 current_time = time.time()
 random.seed(current_time)
-
-# color
-def random_color():
-    return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
 
 class MainMenu:
     def __init__(self, screen, width, height):
@@ -49,17 +46,14 @@ class CreatePlayer:
         self.width = width
         self.height = height
         self.country_name = ''
-        self.flag_color_1 = random_color()
-        self.flag_color_2 = random_color()  
-        self.symbol_color = random_color()
+        self.flag_color_1 = self.random_color()
+        self.flag_color_2 = self.random_color()
+        self.symbol_color = self.random_color()
         self.pattern = 'Stripes'
         self.shape = 'Circle'
         self.shape_size = 50
         self.shape_position = (self.width // 2, self.height // 2)
-        self.showflag = False
-        # car
         self.userNumber = random.randint(0, sys.maxsize)
-        self.api_key = "***"
         self.makes = []
         self.models = []
         self.selected_make = None
@@ -69,84 +63,91 @@ class CreatePlayer:
         self.create_main()
     
     def create_main(self):
-        self.flag_screen = pygame_menu.Menu('Create Flag', self.width, self.height, theme=pygame_menu.themes.THEME_DEFAULT)
-        self.car_screen = pygame_menu.Menu('Create Car', self.width, self.height, theme=pygame_menu.themes.THEME_DEFAULT)
-        self.flag_screen.add.text_input("Country Name: ", onchange=self.set_country_name)
-        self.flag_screen.add.color_input("Flag Color 1: ", default=self.flag_color_1, onchange=self.set_flag_color_1, color_type='rgb')
-        self.flag_screen.add.color_input("Flag Color 2: ", default=self.flag_color_2, onchange=self.set_flag_color_2, color_type='rgb')
-        self.flag_screen.add.color_input("Symbol Color: ", default=self.symbol_color, onchange=self.set_symbol_color, color_type='rgb')
-        # Pattern selector (dropdown)
-        self.flag_screen.add.selector(
-            title="Pattern: ",
-            items=[('Stripes', 'Stripes'), ('Solid', 'Solid'), ('Checker', 'Checker')],
-            onchange=self.set_pattern
-        )
+        self.menu = pygame_menu.Menu('Create Your Player', self.width, self.height, theme=pygame_menu.themes.THEME_DEFAULT)
+        self.inputWidth, self.inputHeight = self.width // 2, 100
 
-        # Shape selector (dropdown)
-        self.flag_screen.add.selector(
-            title="Shape: ",
-            items=[('Circle', 'Circle'), ('Square', 'Square'), ('Star', 'Star')],
-            onchange=self.set_shape
-        )
+        try:
+            flag_frame = self.menu.add.frame_v(width=self.inputWidth, height=self.inputHeight, padding=0)
+            flag_frame.pack(self.menu.add.text_input("Country Name: ", onchange=self.set_country_name, input_underline_len=1, maxchar=15))
+            
+            color_frame = flag_frame.pack(self.menu.add.frame_v(width=self.inputWidth, height=self.inputHeight))
+            color_frame.pack(self.menu.add.color_input("Flag 1 ", default=self.flag_color_1, onchange=self.set_flag_color_1, color_type='rgb', input_underline_len=1))
+        
+            color_frame.pack(self.menu.add.color_input("Flag 2 ", default=self.flag_color_2, onchange=self.set_flag_color_2, color_type='rgb', input_underline_len=1))
+            color_frame.pack(self.menu.add.color_input("Symbol ", default=self.symbol_color, onchange=self.set_symbol_color, color_type='rgb', input_underline_len=1))
 
-        # Shape size slider
-        self.flag_screen.add.range_slider(
-            title='Shape Size: ', 
-            default=self.shape_size, 
-            range_values=(10, 100), 
-            increment=10, 
-            onchange=self.set_shape_size
-        )
+            controls_frame = flag_frame.pack(self.menu.add.frame_h(width=self.inputWidth, height=self.inputHeight))
+            controls_frame.pack(self.menu.add.toggle_switch('Pattern', ['Stripes', 'Solid', 'Checker'], onchange=self.set_pattern))
+            controls_frame.pack(self.menu.add.toggle_switch('Shape', ['Circle', 'Square', 'Star'], onchange=self.set_shape))
+            controls_frame.pack(self.menu.add.range_slider('Size', default=self.shape_size, range_values=(10, 100), onchange=self.set_shape_size))
+            controls_frame.pack(self.menu.add.range_slider('X', default=self.shape_position[0], range_values=(0, self.width), onchange=self.set_shape_position_x))
+            controls_frame.pack(self.menu.add.range_slider('Y', default=self.shape_position[1], range_values=(0, self.height), onchange=self.set_shape_position_y))
 
-        # Shape position sliders (X and Y)
-        self.flag_screen.add.range_slider(
-            title='Shape Position X: ', 
-            default=self.shape_position[0], 
-            range_values=(0, self.width), 
-            increment=10, 
-            onchange=self.set_shape_position_x
-        )
-        self.flag_screen.add.range_slider(
-            title='Shape Position Y: ', 
-            default=self.shape_position[1], 
-            range_values=(0, self.height), 
-            increment=10, 
-            onchange=self.set_shape_position_y
-        )
-        # Button to preview the flag
-        self.flag_screen.add.button('Preview Flag', self.preview_flag)
-        # Button to play after creating the flag
-        self.flag_screen.add.button('Next', self.next_screen)
+            # Car creation section
+            car_frame = self.menu.add.frame_v(width=self.inputWidth, height=self.inputHeight, padding=0)
+            car_frame.pack(self.menu.add.label('Create Your Car', font_size=24))
+            car_frame.pack(self.menu.add.label(f'User Number: {self.userNumber}'))
+            car_frame.pack(self.menu.add.image(r"CarPortfolio\carPortfolio_Image.png", scale=(0.5, 0.5)))
+
+            car_color_frame = car_frame.pack(self.menu.add.frame_h(width=self.inputWidth, height=self.inputHeight))
+            car_color_frame.pack(self.menu.add.color_input("Car Color", default=self.random_color(), input_underline_len=1))
+            car_color_frame.pack(self.menu.add.color_input("Interior", default=self.random_color(), input_underline_len=1))
+
+            self.make_modelsList()
+            car_frame.pack(self.menu.add.selector("Make: ", items=self.makes, onchange=self.set_make))
+            self.model_selector = car_frame.pack(self.menu.add.selector("Model: ", items=self.models, onchange=self.set_model))
+            car_frame.pack(self.menu.add.text_input("Year: ", input_underline_len=4, maxchar=4))
+
+            info_frame = car_frame.pack(self.menu.add.frame_v(width=self.inputWidth, height=self.inputHeight))
+            info_frame.pack(self.menu.add.label('Car Information', font_size=20))
+            self.transmission_label = info_frame.pack(self.menu.add.label('Transmission: '))
+            self.engine_label = info_frame.pack(self.menu.add.label('Engine Size: '))
+            self.mass_label = info_frame.pack(self.menu.add.label('Total Mass: '))
+            self.size_label = info_frame.pack(self.menu.add.label('Total Size: '))
+            self.speed_label = info_frame.pack(self.menu.add.label('Maximum Speed: '))
+            self.drag_label = info_frame.pack(self.menu.add.label('Total Drag: '))
+        except:
+            self.menu.add.button('Play', self.play_game)
+        
+    def random_color(self):
+        return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
     def set_country_name(self, value):
         self.country_name = value
-    
+
     def set_flag_color_1(self, color):
         self.flag_color_1 = color
+        self.draw_flag()
 
     def set_flag_color_2(self, color):
         self.flag_color_2 = color
+        self.draw_flag()
 
     def set_symbol_color(self, color):
         self.symbol_color = color
+        self.draw_flag()
 
-    def set_pattern(self, selected_value, pattern):
+    def set_pattern(self, pattern):
         self.pattern = pattern
+        self.draw_flag()
 
-    def set_shape(self, selected_value, shape):
+    def set_shape(self, shape):
         self.shape = shape
+        self.draw_flag()
 
     def set_shape_size(self, size):
         self.shape_size = int(size)
+        self.draw_flag()
 
     def set_shape_position_x(self, x):
         self.shape_position = (int(x), self.shape_position[1])
+        self.draw_flag()
 
     def set_shape_position_y(self, y):
         self.shape_position = (self.shape_position[0], int(y))
+        self.draw_flag()
 
     def draw_shape(self, surface):
-        # Draw the selected shape at the selected position and size
         if self.shape == 'Circle':
             pygame.draw.circle(surface, self.symbol_color, self.shape_position, self.shape_size)
         elif self.shape == 'Square':
@@ -157,92 +158,69 @@ class CreatePlayer:
             self.draw_star(surface, self.shape_position, self.shape_size, 5, self.symbol_color)
 
     def draw_star(self, surface, position, size, points, color):
-        # Draw a star with the specified number of points
         x, y = position
         point_list = []
         angle_step = 360 / points
         for i in range(points * 2):
             angle = i * angle_step / 2
             radius = size if i % 2 == 0 else size // 2
-            radian_angle = math.radians(angle)  # Use math.radians() here
+            radian_angle = math.radians(angle)
             point_x = x + int(math.cos(radian_angle) * radius)
             point_y = y + int(math.sin(radian_angle) * radius)
             point_list.append((point_x, point_y))
         pygame.draw.polygon(surface, color, point_list)
 
-    def preview_flag(self):
-        # Clear the screen
-        self.showflag = True
-
-        # Draw the flag based on the selected pattern
-        flag_rect = pygame.Rect(self.width//4, self.height//4, self.width//2, self.height//2)
+    def draw_flag(self):
+        flag_surface = pygame.Surface((self.width // 2, self.height // 2))
+        flag_rect = flag_surface.get_rect()
 
         if self.pattern == 'Stripes':
-            # Horizontal stripes: 2 stripes of color 1 and color 2
-            pygame.draw.rect(self.screen, self.flag_color_1, flag_rect)
-            pygame.draw.rect(self.screen, self.flag_color_2, pygame.Rect(flag_rect.x, flag_rect.y + flag_rect.height // 2, flag_rect.width, flag_rect.height // 2))
-
+            pygame.draw.rect(flag_surface, self.flag_color_1, flag_rect)
+            pygame.draw.rect(flag_surface, self.flag_color_2, pygame.Rect(0, flag_rect.height // 2, flag_rect.width, flag_rect.height // 2))
         elif self.pattern == 'Solid':
-            # Solid color 1
-            pygame.draw.rect(self.screen, self.flag_color_1, flag_rect)
-
+            pygame.draw.rect(flag_surface, self.flag_color_1, flag_rect)
         elif self.pattern == 'Checker':
-            # Checkerboard pattern (2x2 grid of alternating colors)
             checker_size = flag_rect.width // 2
-            pygame.draw.rect(self.screen, self.flag_color_1, pygame.Rect(flag_rect.x, flag_rect.y, checker_size, checker_size))
-            pygame.draw.rect(self.screen, self.flag_color_2, pygame.Rect(flag_rect.x + checker_size, flag_rect.y, checker_size, checker_size))
-            pygame.draw.rect(self.screen, self.flag_color_2, pygame.Rect(flag_rect.x, flag_rect.y + checker_size, checker_size, checker_size))
-            pygame.draw.rect(self.screen, self.flag_color_1, pygame.Rect(flag_rect.x + checker_size, flag_rect.y + checker_size, checker_size, checker_size))
+            pygame.draw.rect(flag_surface, self.flag_color_1, pygame.Rect(0, 0, checker_size, checker_size))
+            pygame.draw.rect(flag_surface, self.flag_color_2, pygame.Rect(checker_size, 0, checker_size, checker_size))
+            pygame.draw.rect(flag_surface, self.flag_color_2, pygame.Rect(0, checker_size, checker_size, checker_size))
+            pygame.draw.rect(flag_surface, self.flag_color_1, pygame.Rect(checker_size, checker_size, checker_size, checker_size))
 
-        # Draw the selected shape
-        self.draw_shape(self.screen)
-
-        # Refresh the display
+        self.draw_shape(flag_surface)
+        
+        self.screen.blit(flag_surface, (self.width // 4, self.height // 4))
         pygame.display.flip()
 
     def make_modelsList(self):
-        data = pd.read_csv('dataFiles\car_db_metric.csv', header=0, usecols=['make','model'])
-        self.makes = data['make'].unique().tolist()
-        self.models = data['model'].unique().tolist()
+        data = pd.read_csv('dataFiles/car_db_metric.csv', header=0, usecols=['make', 'model'])
+        self.makes = sorted(data['make'].unique().tolist())
+        self.models = sorted(data['model'].unique().tolist())
 
-    def next_screen(self):
-        self.car_screen.clear()
-        self.frame = self.car_screen.add.frame_h(width=self.width, height=300, dynamic_width=True)
-        self.car_screen.add.label('User Number: ' + str(self.userNumber))
-        self.flag_screen._open(self.car_screen)
-        carProfile = self.car_screen.add.image(r"ImageFile/carPortfolio_Image.png", scale=(0.5,0.5))
-        self.car_screen.add.color_input(title="Car Color: ", color_type="rgb", dynamic_width=False, default=random_color())
-        self.car_screen.add.color_input(title="Interior Color: ", color_type="rgb", dynamic_width=False, default=random_color())
-        self.frame.pack(carProfile)
-        self.make_modelsList()
-        # ---
-        self.car_screen.add.selector(
-            title="Model: ",
-            items=self.models,
-            onchange=self.set_shape
-        )
-
-        self.car_screen.add.selector(
-            title="Make: ",
-            items=self.makes,
-            onchange=self.set_shape
-        )
-        # ----
-        self.car_screen.add.text_input(title="Year: ")
-        self.car_screen.add.label('Car information')
-        # ---
-        self.car_screen.add.label('Transmission: ')
-        self.car_screen.add.label('Engine Size: ')
-        self.car_screen.add.label('Total Mass: ')
-        self.car_screen.add.label('Total size: ')
-        self.car_screen.add.label('Acceleration: ')
-        self.car_screen.add.label('Maximum Speed: ')
-        self.car_screen.add.label('Total Drag: ')
-        # --- play button
-        self.car_screen.add.button('Play', self.play_game)
+    def set_make(self, selected_value, make):
+        self.selected_make = make
+        self.update_model_list(make)
 
     def set_model(self, selected_value, model):
-        self.model = model
-    
+        self.selected_model = model
+        self.update_car_info()
+
+    def update_model_list(self, make):
+        data = pd.read_csv('dataFiles/car_db_metric.csv', header=0, usecols=['make', 'model'])
+        filtered_data = data[data['make'] == make]
+        self.models = sorted(filtered_data['model'].unique().tolist())
+        self.model_selector.update_items(self.models)
+
+    def update_car_info(self):
+        # Implement this method to update car information labels
+        # based on the selected make and model
+        pass
+
     def play_game(self):
         self.play = True
+
+    def run(self):
+        self.draw_flag()
+        self.menu.mainloop(self.screen)
+        return (self.play, self.country_name, self.flag_color_1, self.flag_color_2, 
+                self.symbol_color, self.pattern, self.shape, self.shape_size, 
+                self.shape_position, self.selected_make, self.selected_model)

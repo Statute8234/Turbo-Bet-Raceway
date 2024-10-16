@@ -6,11 +6,12 @@ class Players(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):
         super().__init__()
         self.x, self.y = x, y
+        self.width, self.height = width, height
         self.image_path = image_path
         self.original_image = pygame.image.load(image_path)
-        self.original_image = pygame.transform.scale(self.original_image, (width, height))
+        self.original_image = pygame.transform.scale(self.original_image, (self.width, self.height))
         self.image = self.original_image
-        self.rect = self.image.get_rect(topleft = (self.x, self.y))
+        self.rect = self.image.get_rect(center = (self.x, self.y + self.height))
         self.angle = 0
         self.speed = 0
         self.max_speed = 5
@@ -53,7 +54,7 @@ class Players(pygame.sprite.Sprite):
         self.y -= self.speed * math.cos(rad_angle)
         # update
         self.image = pygame.transform.rotate(self.original_image, self.angle)
-        self.rect = self.image.get_rect(topleft=(self.x,self.y))
+        self.rect = self.image.get_rect(center=(self.x,self.y + self.height))
     
     def update(self):
         self.movment()
